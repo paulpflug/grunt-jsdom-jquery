@@ -52,6 +52,7 @@ In each function `this` will be bound to an object possessing the following prop
 * `window`
 * `document`
 * jQuery's `$`.
+
 Parameters for the functions are:
 * `options` object 
 * source (the HTML file) filename.
@@ -70,11 +71,12 @@ jsdom:
         document = @document
         window = @window
         # do something
-      ]   
-      ,
+      ]
+    toc:
+      selector: "#table-of-contents"
   compile: 
-    src: 'path/to/some/html/file/index.html'
-    dest: 'pdf/output/'
+    src: "path/to/some/html/file/index.html"
+    dest: "pdf/output/"
 ```
 
 ### Predefined post processing
@@ -87,18 +89,22 @@ and fill its element with a linked list of chapters, sections and subsections.
 The selectors for these three can be individually defined, also the id for the found elements will be set to, e.g., `section1.1`.
 
 ##### Defaults for options:
-```js
-selector: "#toc", selector for the table of contents, content will be deleted.
-chapter: ":not(.front-matter) > h2",
-section: "h3",
+```coffee
+# selector for the table of contents, content will be deleted.
+selector: "#toc"
+
+chapter: ":not(.front-matter) > h2"
+
+section: "h3"
+
 subsection: "h4"
 ```
 #### Bibliography (bib)
-Searched for cite elements in the html file, modifies them according to a template and creates a linked table will all used cites.
+Searches for cite elements in the html file, modifies them according to a template and creates a linked table with all used cites.
 
 Can be used with a `.json` or a `.bib` file. If the provided file has no `.json` in its name, [bibtex-parser][bibtex-parser] will be used for reading it. A `.json` file should contain a dictionary, where the keys are used to fetch the entries.
 
-***Note:*** bibtex-parser will convert all keys to uppercase. So for lookup the provided keys will be also uppercased. Keep that in mind if using a '.json'.
+***Note:*** bibtex-parser will convert all keys to uppercase. So for lookup the provided keys will be also uppercased. Keep that in mind if using a `.json`.
 
 ##### Example:
 ```html
@@ -115,7 +121,7 @@ will be replaced by:
 
 ##### Defaults for options:
 ```coffee
-#selector for the bibliography, content will be deleted.
+# selector for the bibliography, content will be deleted.
 selector: "#bib" 
 
 # selector for a single cite, note, that the innerHTML will be upper cased and 
@@ -125,30 +131,29 @@ cite: ":not(blockquote) > cite"
 # will replace KEY in a <cite template="TEMPLATENAME">KEY</cite> with the 
 # compiled jade template. If no TEMPLATENAME is provided, the default will 
 # be used.
-citeStyle: { 
+citeStyle:  
   default: "span.citenumber=`[`+NUMBER+`]`"
-},
 
-# Name of the key which will be used for sorting all used entries prior 
-# creating the table. (uses [_.sortBy](http://lodash.com/docs#sortBy), 
-# that means ["YEAR", "MONTH"] is valid)
-sort: "NUMBER",
+
+# Name of the key, which will be used for sorting all used entries prior 
+# creating the table. 
+# Uses [_.sortBy](http://lodash.com/docs#sortBy) that means ["YEAR", "MONTH"] is valid.
+sort: "NUMBER"
 
 # Function which will be called with each entry prior creating the table,
 # should return the (modified) entry
-modifyEntry: undefined,
+modifyEntry: undefined
 
 # filename or string of a jade template which will be used for each entry
-entryStyle: // default is the template in src/bibEntry.jade
+entryStyle: # default is the template in src/bibEntry.jade
 
 # filename of the bibliography, if not defined will use patterns to find a file
-file: undefined,
+file: undefined
 
 # is only used if no file is specified. Replaces substrings in the source 
 # filename (the HTML file) with other strings to find the bibliography # dynamically.
-patterns: {
- ".bib": /.html/i
-}
+patterns: 
+  ".bib": /.html/i # .html will be replaced with .bib, not cases sensitive
  ```
 #### Table of figures / tables
 
