@@ -13,12 +13,12 @@ It is possible to use own functions to manipulate the HTML, but there are also t
 
 ### Use it with grunt
 
-Install this grunt plugin next to your project`s [grunt.js gruntfile][getting_started] with: `npm install grunt-jsdom-jquery`
+Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-jsdom-jquery`
 
-Then add this line to your project`s `grunt.js` gruntfile:
+Then add this line to your project's `grunt.js` gruntfile:
 
 ```javascript
-grunt.loadNpmTasks(`grunt-jsdom-jquery`);
+grunt.loadNpmTasks('grunt-jsdom-jquery');
 ```
 
 [jsdom]: https://github.com/tmpvar/jsdom
@@ -36,8 +36,8 @@ Simply add task definition in your gruntfile. See the folllowing example:
         // options
       },
       compile: {
-        src: `path/to/some/html/file/index.html`,
-        dest: `pdf/output/`
+        src: 'path/to/some/html/file/index.html',
+        dest: 'pdf/output/'
       }
     },
     //...
@@ -47,15 +47,38 @@ Run `grunt jsdom` to execute all the targets or `grunt jsdom:targetname` to exec
 
 
 ### Options
-`functions` will take an array of functions, which will be executed in order.
-`this` will be bound to an object possessing the following properties: `window`, `document` and the jQuery `$`.
-Parameters are the whole `options` object and the source filename.
+`options.functions` will take an array of functions, which will be executed in order.
+In each function `this` will be bound to an object possessing the following properties: 
+* `window`
+* `document`
+* jQuery's `$`.
+Parameters for the functions are:
+* `options` object 
+* source (the HTML file) filename.
 
 `functions` defaults to `["toc","tot","tof","bib"]` which are the names of the predefined functions.
 These names can be used in conjunction with own functions.
 
+##### Example
+```coffee
+jsdom: 
+  options: 
+    functions: [
+      "toc",
+      (options,src) ->
+        $ = @$
+        document = @document
+        window = @window
+        # do something
+      ]   
+      ,
+  compile: 
+    src: 'path/to/some/html/file/index.html'
+    dest: 'pdf/output/'
+```
+
 ### Predefined post processing
-Options regarding the predefined functions can be accessed by `options.{{nameOfFunction}}`, so for the Table of contents function `options.toc` will be responsible.
+Options regarding the predefined functions can be accessed by `options.{{nameOfFunction}}`, so for the table of contents function `options.toc` will be responsible.
 #### Table of contents (toc)
 
 This function will search for the given selector (#toc)
@@ -95,27 +118,34 @@ will be replaced by:
 #selector for the bibliography, content will be deleted.
 selector: "#bib" 
 
-# selector for a single cite, note, that the innerHTML will be upper cased and then be used to search the provided dictionary for an corresponding entry.
+# selector for a single cite, note, that the innerHTML will be upper cased and 
+# then be used to search the provided dictionary for an corresponding entry.
 cite: ":not(blockquote) > cite"
 
-# will replace KEY in a <cite template="TEMPLATENAME">KEY</cite> with the compiled jade template. If no TEMPLATENAME is provided, the default will be used.
+# will replace KEY in a <cite template="TEMPLATENAME">KEY</cite> with the 
+# compiled jade template. If no TEMPLATENAME is provided, the default will 
+# be used.
 citeStyle: { 
   default: "span.citenumber=`[`+NUMBER+`]`"
 },
 
-# Name of the key which will be used for sorting all used entries prior creating the table. (uses [_.sortBy](http://lodash.com/docs#sortBy), that means ["YEAR", "MONTH"] is valid)
+# Name of the key which will be used for sorting all used entries prior 
+# creating the table. (uses [_.sortBy](http://lodash.com/docs#sortBy), 
+# that means ["YEAR", "MONTH"] is valid)
 sort: "NUMBER",
 
-# Function which will be called with each entry prior creating the table, should return the (modified) entry
+# Function which will be called with each entry prior creating the table,
+# should return the (modified) entry
 modifyEntry: undefined,
 
 # filename or string of a jade template which will be used for each entry
-entryStyle: // default is a somewhat larger template
+entryStyle: // default is the template in src/bibEntry.jade
 
 # filename of the bibliography, if not defined will use patterns to find a file
 file: undefined,
 
-# is only used if no file is specified. Replaces substrings in the source filename (the HTML file) with other strings to find the bibliography dynamically.
+# is only used if no file is specified. Replaces substrings in the source 
+# filename (the HTML file) with other strings to find the bibliography # dynamically.
 patterns: {
  ".bib": /.html/i
 }
