@@ -1,0 +1,39 @@
+td.bibleft
+  span.bibnumber= '['+NUMBER+']'
+td.bibright
+  if AUTHOR
+    span.bibauthor= AUTHOR+'. '
+  if TITLE
+    span.bibtitle= TITLE+'. '
+  if YEAR
+    -var date = YEAR
+    if MONTH
+      -date = MONTH+' '+date
+    -date = date+ ', '
+  case entryType 
+    when 'ARTICLE'
+      if JOURNAL
+        span.bibjournal= JOURNAL+', '
+      if VOLUME
+        -var str = VOLUME
+        if ISSUE
+          -str = VOLUME+'('+ISSUE+')'
+        if PAGES
+          -str = str+':'+PAGES
+        -str = str+ ', '
+        span.bibvolume= str
+      if date
+        span.bibdate= date
+      if ISSN
+        span.bibissn= 'ISSN '+ ISSN+', '
+    when 'BOOK'
+      if PUBLISHER
+        span.bibpublisher= PUBLISHER+', '
+      if date
+        span.bibdate= date
+  if URL
+    -var str = URL
+    if DOI
+      -str = DOI
+    span.biburl URL 
+    a.biburl(href=URL)=str
