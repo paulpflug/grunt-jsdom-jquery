@@ -346,6 +346,7 @@ patterns:
  ```
 
 ## Release History
+ - *v0.0.5*: Bugfix for cites
  - *v0.0.4*: Bugfix for cites
  - *v0.0.3*: Added dependency
  - *v0.0.2*: Restructuring and tof/tot implementation

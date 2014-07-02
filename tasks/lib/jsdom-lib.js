@@ -193,14 +193,17 @@
           entryTemplate = jade.compile(template, options.jadeOptions);
           $(options.bib.cite).each(function(number) {
             var a, html, key, obj, self, templateKey;
-            number++;
             self = $(this);
-            key = self.html().toUpperCase();
+            key = self.attr("ref");
+            if (!key) {
+              key = self.html().toUpperCase();
+            }
             if (!allEntries[key]) {
               return self.attr("style", "color:red");
             } else {
               if (!usedEntries[key]) {
                 obj = allEntries[key];
+                number++;
                 obj.NUMBER = number;
                 obj.KEY = key;
                 usedEntries[key] = obj;
@@ -211,6 +214,7 @@
               }
               citeTemplates[templateKey];
               html = citeTemplates[templateKey](usedEntries[key]);
+              self.attr("ref", key);
               a = $(document.createElement("a")).attr("href", "#" + key).html(html);
               return self.html(a);
             }
