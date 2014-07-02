@@ -4,14 +4,30 @@
   
 A simple [Grunt][grunt] multitask that uses [jsdom][jsdom] to compile HTML on server side and allows manipulation with [jQuery][jquery].
 
-It is possible to use own functions to manipulate the HTML, but there are also two predefined functions:
+It is possible to use own functions to manipulate the HTML, but there are also four predefined functions:
 * toc - will create a table of content
 * bib - will create a table of all cites and link them up
 * tof - will create a table of all figures and link them up
 * tot - will create a table of all tables and link them up
 
-For an example see [paged-media-boilerplate].
+Used in [paged-media-boilerplate].
 
+## Table of Contents
+
+<!-- toc -->
+* [Getting Started](#getting-started)
+  * [Use it with grunt](#use-it-with-grunt)
+  * [Example with hyphenation](#example-with-hyphenation)
+* [Documentation](#documentation)
+  * [Options](#options)
+  * [Predefined post processing](#predefined-post-processing)
+    * [Table of contents (toc)](#table-of-contents-toc)
+    * [Table of figures / tables (tof/tot)](#table-of-figures-tables-toftot)
+    * [Bibliography (bib)](#bibliography-bib)
+* [Release History](#release-history)
+* [License](#license)
+
+<!-- toc stop -->
 ## Getting Started
 
 ### Use it with grunt
@@ -30,6 +46,24 @@ grunt.loadNpmTasks('grunt-jsdom-jquery');
 [getting_started]: https://github.com/cowboy/grunt/blob/master/docs/getting_started.md
 [bibtex-parser]: https://github.com/mikolalysenko/bibtex-parser
 [paged-media-boilerplate]: https://github.com/paulpflug/paged-media-boilerplate
+
+### Example with hyphenation
+Get [jquery-hyphen.js](https://github.com/bramstein/hypher/tree/master/dist) and a [pattern file for your language](https://github.com/bramstein/hyphenation-patterns/tree/master/dist/browser).
+
+This is how a task could look like:
+
+```coffee
+jsdom:
+  options:
+    src: [
+      grunt.file.read("jquery-hyphen.js")
+      grunt.file.read("en-us.js")
+    ]
+    functions: [
+      () -> this.$('p').hyphenate('en-us');
+    ]
+```
+
 ## Documentation
 Simply add task definition in your gruntfile. See the folllowing example:
 
@@ -111,10 +145,10 @@ The selectors for these three can be individually defined, also the id for the f
 
 ##### Defaults for options:
 ```coffee
-# selector for the table of contents, content will be deleted.
+# Selector for the table of contents, content will be deleted.
 selector: "#toc"
 
-# selector for the chapter headings
+# Selector for the chapter headings
 chapter: ":not(.front-matter,.back-matter) > h2"
 
 # Template for the chapternumber
@@ -156,7 +190,7 @@ will be replaced by:
 </h2>
 ```
 
-#### Table of figures / tables
+#### Table of figures / tables (tof/tot)
 
 These functions will search for the given selector (#tof/#tot)
 and fill its element with a linked list of figures / tables.
@@ -273,14 +307,14 @@ will be replaced by:
 
 ##### Defaults for options:
 ```coffee
-# selector for the bibliography, content will be deleted.
+# Selector for the bibliography, content will be deleted.
 selector: "#bib" 
 
-# selector for a single cite, note, that the innerHTML will be upper cased and 
+# Selector for a single cite, note, that the innerHTML will be upper cased and 
 # then be used to search the provided dictionary for an corresponding entry.
 cite: ":not(blockquote) > cite"
 
-# will replace KEY in a <cite template="TEMPLATENAME">KEY</cite> with the 
+# Will replace KEY in a <cite template="TEMPLATENAME">KEY</cite> with the 
 # compiled jade template. If no TEMPLATENAME is provided, the default will 
 # be used.
 citeStyle:  
@@ -296,34 +330,18 @@ sort: "NUMBER"
 # should return the (modified) entry
 modifyEntry: undefined
 
-# filename or string of a jade template which will be used for each entry
+# Filename or string of a jade template which will be used for each entry
 entryStyle: # default is the template in src/bibEntry.jade
 
-# filename of the bibliography, if not defined will use patterns to find a file
+# Filename of the bibliography, if not defined will use patterns to find a file
 file: undefined
 
-# is only used if no file is specified. Replaces substrings in the source 
+# Is only used if no file is specified. Replaces substrings in the source 
 # filename (the HTML file) with other strings to find the bibliography # dynamically.
 patterns: 
   ".bib": /.html/i # .html will be replaced with .bib, not cases sensitive
  ```
 
-### Example for hyphenation
-Get [jquery-hyphen.js](https://github.com/bramstein/hypher/tree/master/dist) and a [pattern file for your language](https://github.com/bramstein/hyphenation-patterns/tree/master/dist/browser).
-
-This is how a task could look like:
-
-```coffee
-jsdom:
-  options:
-    src: [
-      grunt.file.read("jquery-hyphen.js")
-      grunt.file.read("en-us.js")
-    ]
-    functions: [
-      () -> this.$('p').hyphenate('en-us');
-    ]
-```
 ## Release History
  - *v0.0.2*: Restructuring and tof/tot implementation
  - *v0.0.1*: First Release

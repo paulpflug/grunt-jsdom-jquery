@@ -1,3 +1,4 @@
+
 module.exports = (grunt) ->
   
   # Load grunt tasks automatically
@@ -41,6 +42,9 @@ module.exports = (grunt) ->
       compile:
         tasks: ["coffee"]#,"copy"]
 
+  grunt.registerTask "addTocToReadme", "Adds a ToC to the readme", () ->
+    toc = require("marked-toc")
+    table = toc.add("README.md")
 
 
   grunt.registerTask "default", [
