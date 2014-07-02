@@ -1,7 +1,7 @@
 {
   "name": "grunt-jsdom-jquery",
   "description": "Grunt Task that uses jsdom to postprocess compiled HTML files with jQuery",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/paulpflug/grunt-jsdom-jquery/",
   "author": {
     "name": "Paul Pflugradt",
@@ -28,7 +28,8 @@
     "jade": "*",
     "bibtex-parser": "*",
     "jquery": "*",
-    "lodash": "*"
+    "lodash": "*",
+    "jsdom": "*"
     },
   "devDependencies": {
     "grunt": "~0.4.5",
