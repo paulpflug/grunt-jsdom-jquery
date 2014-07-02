@@ -7,7 +7,10 @@ A simple [Grunt][grunt] multitask that uses [jsdom][jsdom] to compile HTML on se
 It is possible to use own functions to manipulate the HTML, but there are also two predefined functions:
 * toc - will create a table of content
 * bib - will create a table of all cites and link them up
+* tof - will create a table of all figures and link them up
+* tot - will create a table of all tables and link them up
 
+For an example see [paged-media-boilerplate].
 
 ## Getting Started
 
@@ -26,28 +29,48 @@ grunt.loadNpmTasks('grunt-jsdom-jquery');
 [grunt]: https://github.com/cowboy/grunt
 [getting_started]: https://github.com/cowboy/grunt/blob/master/docs/getting_started.md
 [bibtex-parser]: https://github.com/mikolalysenko/bibtex-parser
+[paged-media-boilerplate]: https://github.com/paulpflug/paged-media-boilerplate
 ## Documentation
 Simply add task definition in your gruntfile. See the folllowing example:
 
-```javascript
-    //...
-    jsdom: {
-      options: {
-        // options
-      },
-      compile: {
-        src: 'path/to/some/html/file/index.html',
-        dest: 'pdf/output/'
-      }
-    },
-    //...
+```coffeescript
+jsdom:
+  options:
+    # options
+  compile: 
+    src: "path/to/some/html/file/index.html"
+    dest: "pdf/output/"
 ```
 
 Run `grunt jsdom` to execute all the targets or `grunt jsdom:targetname` to execute a specific target. Every `html` file defined by the `src` parameter will be post processed and saved to `dest` folder.
 
 
 ### Options
-`options.functions` will take an array of functions, which will be executed in order.
+Here the available options with the corresponding defaults:
+```coffee
+toc: # see below
+tof: # see below
+tot: # see below
+bib: # see below
+
+
+# Will be passed to each jade template generation
+jadeOptions: 
+  pretty: true
+
+# Will take an array of functions, which will be executed in order.
+# The names of the 4 predefined functions are also valid.
+# For details see below.
+functions: ["toc","tot","tof","bib"]
+
+# See documentation of js dom.
+# jQuery will be unshifted to the `src` array. 
+scripts: undefined
+src: undefined
+
+```
+##### `options.functions`
+
 In each function `this` will be bound to an object possessing the following properties: 
 * `window`
 * `document`
@@ -57,8 +80,6 @@ Parameters for the functions are:
 * `options` object 
 * source (the HTML file) filename.
 
-`functions` defaults to `["toc","tot","tof","bib"]` which are the names of the predefined functions.
-These names can be used in conjunction with own functions.
 
 ##### Example
 ```coffee
@@ -93,11 +114,142 @@ The selectors for these three can be individually defined, also the id for the f
 # selector for the table of contents, content will be deleted.
 selector: "#toc"
 
-chapter: ":not(.front-matter) > h2"
+# selector for the chapter headings
+chapter: ":not(.front-matter,.back-matter) > h2"
 
+# Template for the chapternumber
+chapterTemplate: "span.chapternumber=chapter"
+
+# Class which will be added to the text
+chapterTextClass: "chaptertext"
+
+# Same for section and subsection
 section: "h3"
-
+sectionTemplate: "span.sectionnumber=chapter+'.'+section"
+sectionTextClass: "sectiontext"
 subsection: "h4"
+subsectionTemplate: "span.subsectionnumber=chapter+'.'+section+'.'+subsection"
+subsectionTextClass: "subsectiontext"
+```
+
+##### Example:
+```html
+<div id="toc"></div>
+<h2>Chapter Heading</h2>
+```
+will be replaced by:
+```html
+<div id="toc">
+  <ul>
+    <li class="toc chapter">
+      <a href="#chapter1">
+        <span class="chapternumber">1</span> 
+        <span class="chaptertext">Chapter Heading</span>
+      </a>
+      <ul>
+    </li>
+  </ul>
+</div>
+<h2 id="chapter1">
+  <span class="chapternumber">1</span> 
+  <span class="chaptertext">Chapter Heading</span>
+</h2>
+```
+
+#### Table of figures / tables
+
+These functions will search for the given selector (#tof/#tot)
+and fill its element with a linked list of figures / tables.
+
+##### Defaults for options:
+
+```coffee
+# Content of this element will be replaced by the list of figures / tables
+selector: "#tof" / "#tot"
+
+# Selector for choosing all elements which should be listed and / or linked
+element: "figure:has(figcaption)" / "table:has(caption)"
+
+# Selector for the caption
+caption: "figcaption" / "caption"
+
+# Class which will be added to all text found in the caption
+textClass: "figuretext" / "tabletext"
+
+# Class which will be added to all text found in a link to an element
+linkTextClass: "figurereftext" / "tablereftext"
+
+# Class for the text which belongs in front of the number
+preClass:"pre"
+
+# Default for the text in front of the number 
+preDefault: "Fig." / "Tab."
+
+# Jade template for the number, pre will be 
+# substituted by given text or default.
+# Available numbers:
+# element (absolute number of the element)
+# chapter (number of the containing chapter)
+# chapterelement (absolute number of the element relative to the chapter)
+# section (number of the containing section)
+# sectionelement (absolute number of the element relative to the section)
+# subsection (number of the containing subsection)
+# subsectionelement (absolute number of the element relative to the subsection)
+numberTemplate:"span.figurenumber=pre+chapter+'.'+chapterelement" /
+  "span.tablenumber=pre+chapter+'.'+chapterelement"
+
+# Class for the short description for the list
+shortClass:"short"
+```
+
+##### Example:
+
+```html
+<h2>Chapter 1</h2>
+<figure id="image">
+  <img></img>
+  <figcaption>
+    <span.short>Short description</span>
+    <span.pre>Figure </span>
+  Long description
+  </figcaption>
+</figure>
+<a href="#image">(a)</a>
+<div class="back-matter">
+  <h2>Table of figures</h2>
+  <div id="tof"></div>
+</div>
+```
+will be replaced by:
+```html
+<h2 id="chapter1">
+  <span class="chapternumber">1</span> 
+  <span class="chaptertext">Chapter Heading</span>
+</h2>
+<figure id="image">
+  <img></img>
+  <figcaption>
+    <span class="figurenumber">Figure 1.1</span> 
+    <span class="figuretext">Long description</span>
+  </figcaption>
+</figure>
+<a href="#image">
+  <span class="figurenumber">Figure 1.1</span>
+  <span class="figurereftext">(a)</span>
+</a>
+<div class="back-matter">
+  <h2>Table of figures</h2>
+  <div id="tof">
+    <ul>
+      <li class="tof">
+        <a href="#image">
+          <span class="figurenumber">Figure 1.1</span> 
+          <span class="figuretext">Short description</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
 ```
 #### Bibliography (bib)
 Searches for cite elements in the html file, modifies them according to a template and creates a linked table with all used cites.
@@ -155,12 +307,25 @@ file: undefined
 patterns: 
   ".bib": /.html/i # .html will be replaced with .bib, not cases sensitive
  ```
-#### Table of figures / tables
 
-Not implemented yet.
+### Example for hyphenation
+Get [jquery-hyphen.js](https://github.com/bramstein/hypher/tree/master/dist) and a [pattern file for your language](https://github.com/bramstein/hyphenation-patterns/tree/master/dist/browser).
 
+This is how a task could look like:
+
+```coffee
+jsdom:
+  options:
+    src: [
+      grunt.file.read("jquery-hyphen.js")
+      grunt.file.read("en-us.js")
+    ]
+    functions: [
+      () -> this.$('p').hyphenate('en-us');
+    ]
+```
 ## Release History
-
+ - *v0.0.2*: Restructuring and tof/tot implementation
  - *v0.0.1*: First Release
 
 ## License

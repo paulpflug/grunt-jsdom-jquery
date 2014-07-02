@@ -1,8 +1,9 @@
 jsdom = require "jsdom"
-jQuery = require "jquery" 
 _ = require "lodash"
+fs = require "fs"
 module.exports = (grunt) ->
   helper = require("./lib/jsdom-lib")(grunt)
+  jQueryFile = fs.readFileSync(require.resolve("jquery"),"utf8")
   grunt.registerMultiTask "jsdom", "Inject json in js file" , () ->
     options = this.options()
     _.defaults(options, {
@@ -13,12 +14,42 @@ module.exports = (grunt) ->
       jadeOptions: 
         pretty: true
       functions: ["toc","tot","tof","bib"]
+      scripts: undefined
+      src: undefined
     })
     _.defaults(options.toc, {
       selector: "#toc"
-      chapter: ":not(.front-matter) > h2"
+      chapter: ":not(.front-matter,.back-matter) > h2"
+      chapterTemplate: "span.chapternumber=chapter"
+      chapterTextClass: "chaptertext"
       section: "h3"
+      sectionTemplate: "span.sectionnumber=chapter+'.'+section"
+      sectionTextClass: "sectiontext"
       subsection: "h4"
+      subsectionTemplate: "span.subsectionnumber=chapter+'.'+section+'.'+subsection"
+      subsectionTextClass: "subsectiontext"
+      })
+    _.defaults(options.tof, {
+      selector: "#tof"
+      element: "figure:has(figcaption)"
+      caption: "figcaption"
+      textClass: "figuretext"
+      linkTextClass: "figurereftext"
+      preClass:"pre"
+      preDefault: "Fig."
+      numberTemplate:"span.figurenumber=pre+chapter+'.'+chapterelement"
+      shortClass:"short"
+      })
+    _.defaults(options.tot, {
+      selector: "#tot"
+      element: "table:has(caption)"
+      caption: "caption"
+      textClass: "tabletext"
+      linkTextClass: "tablereftext"
+      preClass:"pre"
+      preDefault: "Tab."
+      numberTemplate:"span.tablenumber=pre+chapter+'.'+chapterelement"
+      shortClass:"short"
       })
     _.defaults(options.bib, {
       selector: "#bib"
@@ -76,9 +107,16 @@ module.exports = (grunt) ->
       default: "span.citenumber='['+NUMBER+']'"
       })
     done = this.async()
+
+    if not options.src
+      options.src = [jQueryFile] 
+    else
+      options.src = [jQueryFile].concat(options.src)
     this.files.forEach (file) ->
       jsdom.env {
         file: "./"+file.src[0]
+        src: options.src
+        scripts: options.scripts
         features:
           FetchExternalResources: ["script","css"]
           ProcessExternalResources: ["script"]
@@ -90,8 +128,9 @@ module.exports = (grunt) ->
           else
             self = {
               window: window
-              $: jQuery(window)
+              $: window.jQuery
               document: window.document
+              grunt: grunt
             }
             for func in options.functions
               if _.isString(func)
