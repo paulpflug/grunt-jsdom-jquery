@@ -12,6 +12,9 @@ It is possible to use own functions to manipulate the HTML, but there are also f
 
 Used in [paged-media-boilerplate].
 
+The Bibliography can be used with a custom `.json` or a Bibtex file.
+All four functions behave very similar to Latex.
+
 ## Table of Contents
 
 <!-- toc -->
