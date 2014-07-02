@@ -132,7 +132,9 @@ module.exports = (grunt) ->
         $(options.bib.cite).each (number) ->
           number++
           self = $(this)
-          key = self.html().toUpperCase()
+          key = self.attr("ref")
+          if not key
+            key = self.html().toUpperCase()
           if not allEntries[key]
             self.attr("style","color:red")
           else
@@ -146,6 +148,7 @@ module.exports = (grunt) ->
               templateKey = self.attr("template")
             citeTemplates[templateKey]
             html = citeTemplates[templateKey](usedEntries[key])
+            self.attr("ref",key)
             a = $(document.createElement("a"))
             .attr("href", "#"+key).html(html)
             self.html(a)
