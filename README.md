@@ -346,6 +346,7 @@ patterns:
  ```
 
 ## Release History
+ - *v0.0.7*: Bugfix for toc
  - *v0.0.6*: gitignore
  - *v0.0.5*: Bugfix for cites
  - *v0.0.4*: Bugfix for cites

@@ -104,9 +104,16 @@
           subsection: jade.compile(options.toc.subsectionTemplate, options.jadeOptions)
         };
         helper = function(self, name, numbers, parentUL) {
-          var href, li, link, newul, number, txt;
+          var href, li, link, newul, number, s, txt, _i, _len, _ref;
           txt = getTemplatedTxt(self, templates.txt, options.toc[name + "TextClass"]);
-          href = name + numbers[name];
+          href = name;
+          _ref = ["chapter", "section", "subsection"];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            s = _ref[_i];
+            if (numbers[s]) {
+              href = href + "." + numbers[s];
+            }
+          }
           self.attr("id", href);
           number = templates[name](numbers);
           self.html(number + " " + txt);

@@ -74,7 +74,10 @@ module.exports = (grunt) ->
       }
       helper = (self,name,numbers,parentUL) ->
         txt = getTemplatedTxt(self,templates.txt,options.toc[name+"TextClass"])
-        href = name+numbers[name]
+        href = name
+        for s in ["chapter","section","subsection"]
+          if numbers[s]
+            href = href+"."+numbers[s]
         self.attr("id",href)
         number = templates[name](numbers)  
         self.html(number+" "+ txt)
@@ -130,7 +133,6 @@ module.exports = (grunt) ->
           template = grunt.file.read(template)
         entryTemplate = jade.compile(template,options.jadeOptions)
         $(options.bib.cite).each (number) ->
-          
           self = $(this)
           key = self.attr("ref")
           if not key
