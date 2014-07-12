@@ -132,7 +132,8 @@ module.exports = (grunt) ->
         if grunt.file.exists(template)
           template = grunt.file.read(template)
         entryTemplate = jade.compile(template,options.jadeOptions)
-        $(options.bib.cite).each (number) ->
+        number = 0
+        $(options.bib.cite).each () ->
           self = $(this)
           key = self.attr("ref")
           if not key

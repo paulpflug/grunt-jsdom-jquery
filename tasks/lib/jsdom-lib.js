@@ -159,7 +159,7 @@
         return createList.call(this, options, "tot");
       },
       bib: function(options, src) {
-        var $, allEntries, bibrow, bibtable, citeTemplates, document, entry, entryTemplate, file, html, k, str, template, usedEntries, v, _i, _len, _ref, _ref1, _ref2;
+        var $, allEntries, bibrow, bibtable, citeTemplates, document, entry, entryTemplate, file, html, k, number, str, template, usedEntries, v, _i, _len, _ref, _ref1, _ref2;
         $ = this.$;
         document = this.document;
         file = "";
@@ -198,7 +198,8 @@
             template = grunt.file.read(template);
           }
           entryTemplate = jade.compile(template, options.jadeOptions);
-          $(options.bib.cite).each(function(number) {
+          number = 0;
+          $(options.bib.cite).each(function() {
             var a, html, key, obj, self, templateKey;
             self = $(this);
             key = self.attr("ref");
